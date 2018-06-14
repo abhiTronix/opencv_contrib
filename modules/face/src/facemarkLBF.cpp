@@ -377,13 +377,10 @@ bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays
 {
     std::vector<Rect> faces;
     Mat roimat = roi.getMat(); // see issue #1661
-std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl;
+    std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl;
     if ((!roimat.empty()) && (roimat.depth()==CV_32S))
         faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
     if (faces.empty()) return false;
-
-for (auto f:faces)
-    std::cout << "f " << f << std::endl;
 
     std::vector<std::vector<Point2f> > & landmarks =
         *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
@@ -417,14 +414,14 @@ bool FacemarkLBFImpl::fitImpl( const Mat image, std::vector<Point2f>& landmarks)
     Rect box;
     if (params.detectROI.width>0){
         box = params.detectROI;
-    std::cout << "box1 " << box << std::endl;
+        std::cout << "box1 " << box << std::endl;
     }else{
         std::vector<Rect> rects;
 
         if (!getFaces(img, rects)) return 0;
         if (rects.empty())  return 0; //failed to get face
         box = rects[0];
-    std::cout << "box2 " << box << std::endl;
+        std::cout << "box2 " << box << std::endl;
     }
 
     double min_x, min_y, max_x, max_y;
