@@ -375,7 +375,7 @@ bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays
 {
     std::vector<Rect> faces;
     Mat roimat = roi.getMat(); // see issue #1661
-std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<endl;
+std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl;
     if ((!roimat.empty()) && (roimat.type()==CV_32SC4))
         faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
     if (faces.empty()) return false;
