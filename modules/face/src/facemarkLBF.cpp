@@ -374,7 +374,7 @@ void FacemarkLBFImpl::training(void* parameters){
 
 bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays  _landmarks )
 {
-    std::vector<Rect> faces = roi.getMat();
+    std::vector<Rect> faces = roi.getMat().reshape(4,1);
     /*Mat roimat = roi.getMat(); // see issue #1661
     std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl;
     if ((!roimat.empty()) && (roimat.depth()==CV_32S)) {
