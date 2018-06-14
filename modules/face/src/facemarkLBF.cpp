@@ -273,7 +273,6 @@ bool FacemarkLBFImpl::setFaceDetector(bool(*f)(InputArray , OutputArray, void * 
 
 bool FacemarkLBFImpl::getFaces(InputArray image, OutputArray faces_)
 {
-    std::cout << "getFaces" << faceDetector << std::endl;
     if (!faceDetector)
     {
         std::vector<Rect> faces;
@@ -375,20 +374,20 @@ void FacemarkLBFImpl::training(void* parameters){
 
 bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays  _landmarks )
 {
-    std::vector<Rect> faces;
-    Mat roimat = roi.getMat(); // see issue #1661
+    std::vector<Rect> faces = roi.getMat();
+    /*Mat roimat = roi.getMat(); // see issue #1661
     std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl;
     if ((!roimat.empty()) && (roimat.depth()==CV_32S)) {
         roimat = roimat.reshape(4,roimat.rows);
         faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
-    }
+    }*/
     if (faces.empty()) return false;
 
     std::vector<std::vector<Point2f> > & landmarks =
         *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
 
     landmarks.resize(faces.size());
-    std::cout << "L " << landmarks.size() << std::endl;
+    std::cout << "L " <<faces.size() << " " << landmarks.size() << std::endl;
 
     for(unsigned i=0; i<faces.size();i++){
         params.detectROI = faces[i];
