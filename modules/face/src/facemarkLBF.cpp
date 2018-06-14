@@ -42,6 +42,8 @@ Mentor: Delia Passalacqua
 #include <cstdio>
 #include <cstdarg>
 
+#include <iostream>
+
 namespace cv {
 namespace face {
 
@@ -271,6 +273,7 @@ bool FacemarkLBFImpl::setFaceDetector(bool(*f)(InputArray , OutputArray, void * 
 
 bool FacemarkLBFImpl::getFaces(InputArray image, OutputArray faces_)
 {
+    std::cout << "getFaces" << faceDetector << std::endl;
     if (!faceDetector)
     {
         std::vector<Rect> faces;
@@ -370,7 +373,6 @@ void FacemarkLBFImpl::training(void* parameters){
     isModelTrained = true;
 }
 
-#include <iostream>
 bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays  _landmarks )
 {
     std::vector<Rect> faces;
@@ -380,10 +382,14 @@ std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl
         faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
     if (faces.empty()) return false;
 
+for (auto f:faces)
+    std::cout << "f " << f << std::endl;
+
     std::vector<std::vector<Point2f> > & landmarks =
         *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
 
     landmarks.resize(faces.size());
+    std::cout << "L " << landmarks.size() << std::endl;
 
     for(unsigned i=0; i<faces.size();i++){
         params.detectROI = faces[i];
@@ -411,12 +417,14 @@ bool FacemarkLBFImpl::fitImpl( const Mat image, std::vector<Point2f>& landmarks)
     Rect box;
     if (params.detectROI.width>0){
         box = params.detectROI;
+    std::cout << "box1 " << box << std::endl;
     }else{
         std::vector<Rect> rects;
 
         if (!getFaces(img, rects)) return 0;
         if (rects.empty())  return 0; //failed to get face
         box = rects[0];
+    std::cout << "box2 " << box << std::endl;
     }
 
     double min_x, min_y, max_x, max_y;
@@ -438,6 +446,7 @@ bool FacemarkLBFImpl::fitImpl( const Mat image, std::vector<Point2f>& landmarks)
     }else{
         landmarks = Mat(shape.reshape(2)+Scalar(min_x, min_y));
     }
+    std::cout << "landmarks " << landmarks.size() << landmarks << std::endl;
 
     return 1;
 }
