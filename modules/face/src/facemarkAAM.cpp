@@ -331,8 +331,11 @@ bool FacemarkAAMImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays
 
 bool FacemarkAAMImpl::fitConfig( InputArray image, InputArray roi, OutputArrayOfArrays _landmarks, const std::vector<Config> &configs )
 {
-    std::vector<Rect> & faces = *(std::vector<Rect> *)roi.getObj();
-    if(faces.size()<1) return false;
+    std::vector<Rect> faces;
+    Mat roimat = roi.getMat(); // see issue #1661
+    if ((!roimat.empty()) && (roimat.type()==CV_32SC4))
+        faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
+    if (faces.empty()) return false;
 
     std::vector<std::vector<Point2f> > & landmarks =
         *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();

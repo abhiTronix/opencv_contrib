@@ -169,18 +169,23 @@ bool FacemarkKazemiImpl::fit(InputArray img, InputArray roi, OutputArrayOfArrays
         CV_Error(Error::StsBadArg, error_message);
         return false;
     }
-    Mat image  = img.getMat();
-    std::vector<Rect> & faces = *(std::vector<Rect>*)roi.getObj();
-    std::vector<std::vector<Point2f> > & shapes = *(std::vector<std::vector<Point2f> >*) landmarks.getObj();
-    shapes.resize(faces.size());
 
-    if(image.empty()){
-        String error_message = "No image found.Aborting..";
+    std::vector<Rect> faces;
+    Mat roimat = roi.getMat(); // see issue #1661
+    if ((!roimat.empty()) && (roimat.type()==CV_32SC4))
+        faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
+    if(faces.empty()){
+        String error_message = "No faces found.Aborting..";
         CV_Error(Error::StsBadArg, error_message);
         return false;
     }
-    if(faces.empty()){
-        String error_message = "No faces found.Aborting..";
+
+    std::vector<std::vector<Point2f> > & shapes = *(std::vector<std::vector<Point2f> >*) landmarks.getObj();
+    shapes.resize(faces.size());
+
+    Mat image  = img.getMat();
+    if(image.empty()){
+        String error_message = "No image found.Aborting..";
         CV_Error(Error::StsBadArg, error_message);
         return false;
     }
