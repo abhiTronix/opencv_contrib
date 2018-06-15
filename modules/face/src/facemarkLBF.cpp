@@ -118,7 +118,8 @@ public:
 protected:
 
     bool fit( InputArray image, InputArray faces, OutputArrayOfArrays landmarks ) CV_OVERRIDE;//!< from many ROIs
-    bool fitImpl( const Mat image, std::vector<Point2f> & landmarks );//!< from a face
+    //bool fitImpl( const Mat image, std::vector<Point2f> & landmarks );//!< from a face
+    bool fitImpl( const Mat image, Mat & landmarks );//!< from a face
 
     bool addTrainingSample(InputArray image, InputArray landmarks) CV_OVERRIDE;
     void training(void* parameters) CV_OVERRIDE;
@@ -372,9 +373,10 @@ void FacemarkLBFImpl::training(void* parameters){
     isModelTrained = true;
 }
 
-bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays  _landmarks )
+bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays _landmarks )
 {
-    std::vector<Rect> faces = roi.getMat().reshape(4,1);
+    Mat roimat = roi.getMat();
+    std::vector<Rect> faces = roimat.reshape(4,roimat.rows);
     /*Mat roimat = roi.getMat(); // see issue #1661
     std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl;
     if ((!roimat.empty()) && (roimat.depth()==CV_32S)) {
@@ -383,8 +385,10 @@ bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays
     }*/
     if (faces.empty()) return false;
 
-    std::vector<std::vector<Point2f> > & landmarks =
-        *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
+    //std::vector<std::vector<Point2f> > & landmarks =
+    //    *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
+    std::vector<Mat> landmarks;
+    _landmarks.getMatVector(landmarks);
 
     landmarks.resize(faces.size());
     std::cout << "L " <<faces.size() << " " << landmarks.size() << std::endl;
@@ -392,15 +396,17 @@ bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays
     for(unsigned i=0; i<faces.size();i++){
         params.detectROI = faces[i];
         fitImpl(image.getMat(), landmarks[i]);
-    std::cout << "landmarks 2" << i <<  landmarks[i].size() << landmarks[i] << std::endl;
+        std::cout << "landmarks 2 " << i << " " << landmarks[i].size() << landmarks[i] << std::endl;
    }
 
     return true;
 }
 
-bool FacemarkLBFImpl::fitImpl( const Mat image, std::vector<Point2f>& landmarks){
-    if (landmarks.size()>0)
-        landmarks.clear();
+bool FacemarkLBFImpl::fitImpl( const Mat image, Mat &landmarks){
+    //if (landmarks.size()>0)
+    if (landmarks.total()>0)
+        landmarks.release();
+        //landmarks.clear();
 
     if (!isModelTrained) {
         CV_Error(Error::StsBadArg, "The LBF model is not trained yet. Please provide a trained model.");
@@ -445,7 +451,6 @@ bool FacemarkLBFImpl::fitImpl( const Mat image, std::vector<Point2f>& landmarks)
     }else{
         landmarks = Mat(shape.reshape(2)+Scalar(min_x, min_y));
     }
-    std::cout << "landmarks 1" << landmarks.size() << landmarks << std::endl;
 
     return 1;
 }
