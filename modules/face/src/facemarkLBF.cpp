@@ -393,6 +393,7 @@ bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays
         params.detectROI = faces[i];
         fitImpl(image.getMat(), landmarks[i]);
     }
+    std::cout << "landmarks 2" << landmarks.size() << landmarks << std::endl;
 
     return true;
 }
@@ -444,7 +445,7 @@ bool FacemarkLBFImpl::fitImpl( const Mat image, std::vector<Point2f>& landmarks)
     }else{
         landmarks = Mat(shape.reshape(2)+Scalar(min_x, min_y));
     }
-    std::cout << "landmarks " << landmarks.size() << landmarks << std::endl;
+    std::cout << "landmarks 1" << landmarks.size() << landmarks << std::endl;
 
     return 1;
 }
