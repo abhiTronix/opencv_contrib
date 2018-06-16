@@ -414,14 +414,12 @@ bool FacemarkLBFImpl::fitImpl( const Mat image, std::vector<Point2f>& landmarks)
     Rect box;
     if (params.detectROI.width>0){
         box = params.detectROI;
-        std::cout << "box1 " << box << std::endl;
     }else{
         std::vector<Rect> rects;
 
         if (!getFaces(img, rects)) return 0;
         if (rects.empty())  return 0; //failed to get face
         box = rects[0];
-        std::cout << "box2 " << box << std::endl;
     }
 
     double min_x, min_y, max_x, max_y;

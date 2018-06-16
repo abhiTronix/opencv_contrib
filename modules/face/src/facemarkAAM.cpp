@@ -331,15 +331,11 @@ bool FacemarkAAMImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays
 
 bool FacemarkAAMImpl::fitConfig( InputArray image, InputArray roi, OutputArrayOfArrays _landmarks, const std::vector<Config> &configs )
 {
-    std::vector<Rect> faces;
-    Mat roimat = roi.getMat(); // see issue #1661
-    if ((!roimat.empty()) && (roimat.type()==CV_32SC4))
-        faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
+    Mat roimat = roi.getMat();
+    std::vector<Rect> faces = roimat.reshape(4,roimat.rows);
     if (faces.empty()) return false;
 
-    std::vector<std::vector<Point2f> > & landmarks =
-        *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
-    landmarks.resize(faces.size());
+    std::vector<std::vector<Point2f> > landmarks(faces.size());
 
     Mat img = image.getMat();
     if (! configs.empty()){
@@ -360,6 +356,14 @@ bool FacemarkAAMImpl::fitConfig( InputArray image, InputArray roi, OutputArrayOf
         }
     }
 
+    if (_landmarks.isMatVector()) { // python
+        std::vector<Mat> &v = *(std::vector<Mat>*) _landmarks.getObj();
+        for (size_t i=0; i<faces.size(); i++)
+            v.push_back(Mat(landmarks[i]));
+    } else { // c++, java
+        std::vector<std::vector<Point2f> > &v = *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
+        v = landmarks;
+    }
     return true;
 }
 
