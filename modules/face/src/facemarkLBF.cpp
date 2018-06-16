@@ -372,32 +372,27 @@ void FacemarkLBFImpl::training(void* parameters){
     isModelTrained = true;
 }
 
-bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays  _landmarks )
+bool FacemarkLBFImpl::fit( InputArray image, InputArray roi, OutputArrayOfArrays _landmarks )
 {
     Mat roimat = roi.getMat();
     std::vector<Rect> faces = roimat.reshape(4,roimat.rows);
-    /*Mat roimat = roi.getMat(); // see issue #1661
-    std::cout << roi.empty() << roimat.size() << roimat.type() << roimat <<std::endl;
-    if ((!roimat.empty()) && (roimat.depth()==CV_32S)) {
-        roimat = roimat.reshape(4,roimat.rows);
-        faces.insert(faces.begin(), roimat.begin<Rect>(), roimat.end<Rect>());
-    }*/
     if (faces.empty()) return false;
 
-    int k = _landmarks.kind();
-    std::cout << "oa kind " << k << " vecvec" << (k==262144) << " vecmat " << (k==327680) << std::endl;
-    std::vector<std::vector<Point2f> > & landmarks =
-        *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
+    std::vector<std::vector<Point2f> > landmarks(faces.size());
 
-    landmarks.resize(faces.size());
-    std::cout << "L " <<faces.size() << " " << landmarks.size() << std::endl;
-
-    for(unsigned i=0; i<faces.size();i++){
+    for (unsigned i=0; i<faces.size();i++){
         params.detectROI = faces[i];
         fitImpl(image.getMat(), landmarks[i]);
-    std::cout << "landmarks 2 " << i << " " << landmarks[i].size() << landmarks[i] << std::endl;
-   }
+    }
 
+    if (_landmarks.isMatVector()) { // python
+        std::vector<Mat> &v = *(std::vector<Mat>*) _landmarks.getObj();
+        for (size_t i=0; i<faces.size(); i++)
+            v.push_back(Mat(landmarks[i]));
+    } else { // c++, java
+        std::vector<std::vector<Point2f> > &v = *(std::vector<std::vector<Point2f> >*) _landmarks.getObj();
+        v = landmarks;
+    }
     return true;
 }
 
